@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25008.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiPeek.App", "ApiPeek.App", "{516EFA5D-A6DF-4BA8-A02F-74D715E64E4D}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiPeek.Service", "ApiPeek.Service\ApiPeek.Service.csproj", "{FCE01DA8-FD18-4AC7-A49A-1955EDB75D58}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiPeek.Compare.App.Console", "ApiPeek.Compare.App.Console\ApiPeek.Compare.App.Console.csproj", "{96FBACC4-27BD-43C8-910D-1D8CF687C90A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiPeek.App.Console", "ApiPeek.App.Console\ApiPeek.App.Console.csproj", "{39A980DB-A3B4-4437-BB65-A4F3D7702E85}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -130,6 +132,22 @@ Global
 		{96FBACC4-27BD-43C8-910D-1D8CF687C90A}.Release|x64.Build.0 = Release|Any CPU
 		{96FBACC4-27BD-43C8-910D-1D8CF687C90A}.Release|x86.ActiveCfg = Release|Any CPU
 		{96FBACC4-27BD-43C8-910D-1D8CF687C90A}.Release|x86.Build.0 = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|ARM.Build.0 = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|x64.Build.0 = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Debug|x86.Build.0 = Debug|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|ARM.ActiveCfg = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|ARM.Build.0 = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|x64.ActiveCfg = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|x64.Build.0 = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|x86.ActiveCfg = Release|Any CPU
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,5 +156,6 @@ Global
 		{3BCB4884-A108-44B0-8317-FA9814185296} = {516EFA5D-A6DF-4BA8-A02F-74D715E64E4D}
 		{C464FA47-7BF6-45D7-970F-CEF4EC1D9832} = {516EFA5D-A6DF-4BA8-A02F-74D715E64E4D}
 		{7D21E59C-D29D-439C-8B98-71F221E18C56} = {516EFA5D-A6DF-4BA8-A02F-74D715E64E4D}
+		{39A980DB-A3B4-4437-BB65-A4F3D7702E85} = {516EFA5D-A6DF-4BA8-A02F-74D715E64E4D}
 	EndGlobalSection
 EndGlobal
