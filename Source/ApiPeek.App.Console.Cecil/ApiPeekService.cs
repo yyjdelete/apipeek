@@ -36,7 +36,7 @@ namespace ApiPeek.Service
             var path = tp.Item2;
             if (!Directory.Exists(path))
                 return;
-            var assemblies = loader.GetAssemblies().Where(a => a != null).Distinct();
+            var assemblies = loader.GetAssemblies();
 
             string fileName = $"peek_{Path.GetFileName(path)}_{DateTime.Now:yyyyMMddHHmmss}.zip";
 

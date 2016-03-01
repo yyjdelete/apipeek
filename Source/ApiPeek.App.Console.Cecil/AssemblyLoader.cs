@@ -46,7 +46,8 @@ namespace ApiPeek.Service
                 {
                     Debug.WriteLine(dllPath + "->" + e);
                 }
-                yield return ass;
+                if (ass != null)
+                    yield return ass;
             }
         }
 
