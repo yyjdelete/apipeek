@@ -84,14 +84,14 @@ namespace ApiPeek.Service
                 //+       [2] { "类型“System.Web.DynamicData.DynamicRouteExpression”违反了继承安全性规则。派生类型必须与基类型的安全可访问性匹配或者比基类型的安全可访问性低。":"System.Web.DynamicData.DynamicRouteExpression"}
                 //System.Exception { System.TypeLoadException}
 
-                return assembly.DefinedTypes.OrderBy(t => t.Name).ToArray();//+		assembly	{System.Web.DynamicData, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35}	System.Reflection.Assembly {System.Reflection.RuntimeAssembly}
+                return assembly.DefinedTypes.OrderBy(t => t.FullName).ToArray();//+		assembly	{System.Web.DynamicData, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35}	System.Reflection.Assembly {System.Reflection.RuntimeAssembly}
             }
             catch (ReflectionTypeLoadException e)
             {
                 //mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089->System.Reflection.ReflectionTypeLoadException: 无法加载一个或多个请求的类型。有关更多信息，请检索 LoaderExceptions 属性。
                 //"未能从程序集“mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089”中加载类型“System.Object”，因为父级不存在。"
                 Debug.WriteLine(assembly.FullName + "->" + e);
-                return e.Types.Where(t => t != null).Select(t => t.GetTypeInfo()).Where(ti => ti != null).OrderBy(t => t.Name).ToArray();
+                return e.Types.Where(t => t != null).Select(t => t.GetTypeInfo()).Where(ti => ti != null).OrderBy(t => t.FullName).ToArray();
             }
             catch (Exception e)
             {

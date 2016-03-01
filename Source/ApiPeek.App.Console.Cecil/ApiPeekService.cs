@@ -79,7 +79,7 @@ namespace ApiPeek.Service
         {
             //FIXME:MainModule/Modules, Types/ExportedTypes
             //[TypeDefinition]GetTypes包括Nest的, Types不含
-            //[ExportedType]ExportedTypes ??和[TypeReference]GetTypeReferences 引用的其他库中的类型
+            //[ExportedType]ExportedTypes 读取失败和[TypeReference]GetTypeReferences 引用的其他库中的类型
             return assembly.MainModule.GetTypes().Where(t => t.IsPublic).OrderBy(t => t.FullName).ToArray();
         }
 
@@ -143,8 +143,7 @@ namespace ApiPeek.Service
             jw.WriteStartObject();
 
             WriteString("Name", enm.FullName, jw);
-            WriteBool("IsFlags", enm.CustomAttributes.Any(ca =>
-            ca.AttributeType.IsTypeOf(typeof(FlagsAttribute))), jw);
+            WriteBool("IsFlags", enm.CustomAttributes.Any(ca => ca.AttributeType.IsTypeOf(typeof(FlagsAttribute))), jw);
             TypeReference basetype = enm.GetEnumUnderlyingType();
             WriteString("BaseType", basetype.Name, jw);
             GetEnumValues(enm, basetype, jw);
@@ -516,25 +515,30 @@ namespace ApiPeek.Service
 
         public static bool IsTypeOf(this TypeReference self, Type other)
         {
+            if (self == null)
+                return other == null;
+            if (other == null)
+                return false;
             //NOTE: Resolve()之前, .Module 是引用程序集而不是被引用程序集
             if (self.Name == other.Name &&
                 self.Namespace == other.Namespace)
             {
-                //self.Scope.Name == other.Module.Name &&
-                //self.Scope.Name == other.Module.Assembly.GetName().Name;
-                switch (self.Scope.MetadataScopeType)
+                var scope = self.Scope;
+                switch (scope.MetadataScopeType)
                 {
                     case MetadataScopeType.AssemblyNameReference:
                         //TypeDefinition
-                        return ((AssemblyNameReference)self.Scope).Name == other.Assembly.GetName().Name;
+                        return ((AssemblyNameReference)scope).Name == other.Assembly.GetName().Name;
 
                     case MetadataScopeType.ModuleDefinition:
                         //TypeReference
-                        return ((ModuleDefinition)self.Scope).Name == other.Module.ScopeName;
+                        var md = ((ModuleDefinition)scope);
+                        return md.Name == other.Module.ScopeName &&
+                            md.Assembly.Name.Name == other.Assembly.GetName().Name;
 
                     default:
                     case MetadataScopeType.ModuleReference:
-                        throw new ArgumentException();
+                        throw new ArgumentException("Scope");
                 }
             }
             return false;
@@ -543,7 +547,7 @@ namespace ApiPeek.Service
         public static bool IsDelegate(this TypeDefinition self)
         {
             //Delegate的其他子类呢
-            return self.IsAutoClass && self.BaseType != null && self.IsTypeOf(typeof(MulticastDelegate));
+            return self.BaseType.IsTypeOf(typeof(MulticastDelegate));
         }
 
         public static TypeReference GetEnumUnderlyingType(this TypeDefinition self)
@@ -564,10 +568,16 @@ namespace ApiPeek.Service
         public static string GetTypeName(this TypeReference t)
         {
             if (t == null) return "unknown";
-            if (!t.HasGenericParameters) return t.Name;
-
-            var name = new StringBuilder();
             var genTypeName = t.Name;
+            if (!t.IsGenericInstance && !t.HasGenericParameters)
+            {
+                //if (genTypeName.Contains("`"))//FIXME:ByReferenceType
+                //    Debugger.Break();
+                return genTypeName;
+            }
+
+            //see GenericInstanceType
+            var name = new StringBuilder();
             if (genTypeName.Contains("`")) genTypeName = genTypeName.Substring(0, genTypeName.IndexOf('`'));
             name.Append(genTypeName);
             t.GenericInstanceName(name);
@@ -577,11 +587,16 @@ namespace ApiPeek.Service
         public static string GetFullTypeName(this TypeReference t)
         {
             if (t == null) return "unknown";
-            if (!t.HasGenericParameters) return t.FullName;
+            var genTypeName = t.FullName;//FIXME: NestType's DeclaringType's FullName
+            if (!t.IsGenericInstance && !t.HasGenericParameters)
+            {
+                //if (genTypeName.Contains("`"))//FIXME:
+                //    Debugger.Break();
+                return genTypeName;
+            }
 
             //see GenericInstanceType
             var name = new StringBuilder();
-            var genTypeName = t.FullName;//FIXME:
             if (genTypeName.Contains("`")) genTypeName = genTypeName.Substring(0, genTypeName.IndexOf('`'));
             name.Append(genTypeName);
             t.GenericInstanceFullName(name);
@@ -589,14 +604,16 @@ namespace ApiPeek.Service
             //return t.FullName;
         }
 
-        public static void GenericInstanceName(this TypeReference self, StringBuilder builder)
+        private static void GenericInstanceName(this TypeReference self, StringBuilder builder)
         {
+            //see Mono.Cecil.GenericInstanceType
             var gi = self as IGenericInstance;
             if (gi != null)
             {
+                //self.IsGenericInstance
+                Debug.Assert(gi.HasGenericArguments);
                 builder.Append("<");
                 var arguments = gi.GenericArguments;
-                Debug.Assert(arguments.Count > 0);
                 for (int i = 0; i < arguments.Count; i++)
                 {
                     if (i > 0)
@@ -607,11 +624,12 @@ namespace ApiPeek.Service
                 return;
             }
             var gpp = self as IGenericParameterProvider;
-            if (gpp != null && gpp.HasGenericParameters)
+            if (gpp != null)
             {
+                //self.HasGenericParameters
+                Debug.Assert(gpp.HasGenericParameters);
                 builder.Append("<");
                 var arguments = gpp.GenericParameters;
-                Debug.Assert(arguments.Count > 0);
                 for (int i = 0; i < arguments.Count; i++)
                 {
                     if (i > 0)
@@ -623,14 +641,16 @@ namespace ApiPeek.Service
             }
         }
 
-        public static void GenericInstanceFullName(this TypeReference self, StringBuilder builder)
+        private static void GenericInstanceFullName(this TypeReference self, StringBuilder builder)
         {
+            //see Mono.Cecil.GenericInstanceType
             var gi = self as IGenericInstance;
             if (gi != null)
             {
+                //self.IsGenericInstance
+                Debug.Assert(gi.HasGenericArguments);
                 builder.Append("<");
                 var arguments = gi.GenericArguments;
-                Debug.Assert(arguments.Count > 0);
                 for (int i = 0; i < arguments.Count; i++)
                 {
                     if (i > 0)
@@ -641,11 +661,12 @@ namespace ApiPeek.Service
                 return;
             }
             var gpp = self as IGenericParameterProvider;
-            if (gpp != null && gpp.HasGenericParameters)
+            if (gpp != null)
             {
+                //self.HasGenericParameters
+                Debug.Assert(gpp.HasGenericParameters);
                 builder.Append("<");
                 var arguments = gpp.GenericParameters;
-                Debug.Assert(arguments.Count > 0);
                 for (int i = 0; i < arguments.Count; i++)
                 {
                     if (i > 0)
@@ -660,14 +681,23 @@ namespace ApiPeek.Service
         public static bool IsResources(this AssemblyDefinition self)
         {
             //<Module>
-            return self.Name.Name.EndsWith(".resources") &&
-                self.Modules.Count == 1 && self.MainModule.Types.Count == 1;
+            if (self.Name.Name.EndsWith(".resources"))
+            {
+                return self.Modules.Count == 1 && self.MainModule.Types.Count == 1;
+            }
+            return false;
         }
 
         public static bool IsNativeImage(this AssemblyDefinition self)
         {
             //TODO: Filter *.ni.*
-            return false; //(self.MainModule.Attributes & ModuleAttributes.ILOnly) == 0;
+            if ((self.MainModule.Attributes & ModuleAttributes.ILOnly) == 0)
+            {
+                var fileName = self.MainModule.FullyQualifiedName;
+                if (fileName != null)
+                    return Path.GetFileNameWithoutExtension(fileName).EndsWith(".ni", StringComparison.OrdinalIgnoreCase);
+            }
+            return false;
         }
     }
 }
